@@ -1,4 +1,4 @@
-package com.homehub;
+package com.homehub.app.service;
 
 import android.app.Service;
 import android.content.Intent;
@@ -12,6 +12,11 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 
 public class HomehubService extends Service {
+    public static final int BindState_UnBinded = 0;
+    public static final int BindState_Binding = 1;
+    public static final int BindState_Binded = 2;
+    public static final int BindState_UnBinding = 3;
+
     private final IBinder mBinder = new HomehubBinder();
     private final HubHandler mHubHandler = new HubHandler();
     private boolean mKeepRunning = true;

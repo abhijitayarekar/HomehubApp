@@ -1,4 +1,4 @@
-package com.example.myfirstapp;
+package com.homehub.app.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 

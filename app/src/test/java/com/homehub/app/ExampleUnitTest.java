@@ -1,4 +1,4 @@
-package com.example.myfirstapp;
+package com.homehub.app;
 
 import org.junit.Test;
 

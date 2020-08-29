@@ -1,7 +1,4 @@
-package com.example.myfirstapp;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+package com.homehub.app.ui;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,41 +7,48 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import com.homehub.HomehubService;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.homehub.app.service.HomehubService;
 
 public class MainActivity extends AppCompatActivity implements HomehubService.HomehubCallback {
     public static final String EXTRA_MESSAGE = "homehub.message";
 
-    private static final String HOMEHUB_SERVICE_STATE = "homehub.service.state";
+    private static final String S_HOMEHUB_SERVICE_STATE = "homehub.service.state";
 
     HomehubService mHomehubService;
-    boolean mBound = false;
+    int mBindState = HomehubService.BindState_UnBinded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState != null) {
-            if (!savedInstanceState.getBoolean(HOMEHUB_SERVICE_STATE)) {
-                Intent intent = new Intent(this, HomehubService.class);
-                bindService(intent, connection, Context.BIND_AUTO_CREATE);
-            }
+        if (savedInstanceState != null)
+            mBindState = savedInstanceState.getInt(S_HOMEHUB_SERVICE_STATE);
+
+        if (mBindState == HomehubService.BindState_UnBinded) {
+            System.out.println("Binding homehub service.");
+            Intent intent = new Intent(this, HomehubService.class);
+            bindService(intent, connection, Context.BIND_AUTO_CREATE);
+            mBindState = HomehubService.BindState_Binding;
         }
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(HOMEHUB_SERVICE_STATE, mBound);
+        outState.putInt(S_HOMEHUB_SERVICE_STATE, mBindState);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mBound)
+        if (mBindState > HomehubService.BindState_UnBinded)
             unbindService(connection);
-        mBound = false;
+
+        mBindState = HomehubService.BindState_UnBinded;
     }
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -53,13 +57,13 @@ public class MainActivity extends AppCompatActivity implements HomehubService.Ho
             HomehubService.HomehubBinder binder = (HomehubService.HomehubBinder) service;
             mHomehubService = binder.getService();
             mHomehubService.setCallback(MainActivity.this);
-            mBound = true;
+            mBindState = HomehubService.BindState_Binded;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mHomehubService.setCallback(null);
-            mBound = false;
+            mBindState = HomehubService.BindState_UnBinded;
         }
     };
 

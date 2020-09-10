@@ -2,4 +2,5 @@
     <string name="app_name">Homehub App</string>
     <string name="edit_message">Enter a message</string>
     <string name="button_send">send</string>
+    <string name="looking_for_homehub">Looking for Homehub...</string>
 </resources>
